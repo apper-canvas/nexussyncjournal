@@ -101,8 +101,8 @@ export const CollaborationProvider = ({ children }) => {
       }));
     };
     
-    // Define mock handler for edit updates
-    const handleEditUpdate = (data) => {
+  // Define handler for edit updates
+  const handleEditUpdate = (data) => {
       setCurrentEdits(prev => ({
         ...prev, 
         [data.recordId]: { 
@@ -114,7 +114,7 @@ export const CollaborationProvider = ({ children }) => {
             timestamp: new Date().toISOString()
           }
         }
-      });
+      }));
       // Add notification if this is a record the user follows
       if (followedRecords.includes(data.recordId) && data.userId !== currentUser.id) {
         const notification = {
