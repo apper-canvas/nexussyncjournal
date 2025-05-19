@@ -86,6 +86,7 @@ const CustomerDetail = () => {
   const TagIcon = getIcon('Tag');
   const DollarSignIcon = getIcon('DollarSign');
   const CalendarIcon = getIcon('Calendar');
+  const TrashIcon = getIcon('Trash');
   const PlusIcon = getIcon('Plus');
   const SendIcon = getIcon('Send');
   const TrashIcon = getIcon('Trash');
@@ -1093,5 +1094,3 @@ const CustomerDetail = () => {
       </motion.div>
     </div>
 };
-
-export default CustomerDetail;
