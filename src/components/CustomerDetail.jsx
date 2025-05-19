@@ -71,7 +71,7 @@ const CustomerDetail = () => {
 
   // Icons
   const CloseIcon = getIcon('X');
-  const ArrowLeftIcon = getIcon('ArrowLeft');
+  const ArrowLeftIcon = getIcon('ArrowLeft'); 
   const EditIcon = getIcon('Edit');
   const SaveIcon = getIcon('Save');
   const StarIcon = getIcon('Star');
@@ -88,6 +88,7 @@ const CustomerDetail = () => {
   const CalendarIcon = getIcon('Calendar');
   const PlusIcon = getIcon('Plus');
   const SendIcon = getIcon('Send');
+  const TrashIcon = getIcon('Trash');
   const PhoneCallIcon = getIcon('PhoneCall');
   const MessageCircleIcon = getIcon('MessageCircle');
   const AlertIcon = getIcon('AlertCircle');
@@ -1093,5 +1094,4 @@ const CustomerDetail = () => {
     </div>
 };
 
-export default CustomerDetail;
 export default CustomerDetail;
