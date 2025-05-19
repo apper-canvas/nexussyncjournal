@@ -11,10 +11,12 @@ function ProtectedRoute({ children }) {
   }
   
   if (!currentUser) {
-    // Redirect to the login page, but save the current location they were trying to access
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Explicitly return Navigate component with replace to prevent adding to history
+    // This helps prevent the infinite render loop
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
   
+  // Only render children when user is authenticated
   return children;
 }
 
