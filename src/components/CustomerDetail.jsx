@@ -1096,4 +1096,3 @@ const CustomerDetail = () => {
 };
 
 export default CustomerDetail;
-export default CustomerDetail;
