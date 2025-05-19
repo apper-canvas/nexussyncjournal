@@ -268,16 +268,7 @@ const CustomerList = () => {
             
             <button
               onClick={() => {
-                setShowAddForm(true);
-                setIsEditMode(false);
-                setFormData({
-                  name: '',
-                  industry: '',
-                  status: 'lead',
-                  email: '',
-                  phone: '',
-                  location: '',
-                });
+                navigate('/customers/form');
               }}
               className="btn btn-primary inline-flex items-center self-start sm:self-auto"
             >
@@ -577,8 +568,8 @@ const CustomerList = () => {
                         </button>
                         <button 
                           onClick={() => handleEditClick(customer)}
-                          className="text-primary hover:text-primary-dark dark:hover:text-primary-light"
-                          title="Edit customer"
+                          className="text-primary hover:text-primary-dark dark:hover:text-primary-light" 
+                          title="Edit customer" onClick={() => navigate(`/customers/form/${customer.id}`)}
                         >
                           <EditIcon className="h-4 w-4" />
                           <span className="sr-only">Edit</span>

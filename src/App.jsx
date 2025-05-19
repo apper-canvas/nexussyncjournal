@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import CustomerForm from './components/CustomerForm';
 import CustomerList from './components/CustomerList';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -109,6 +110,11 @@ function App() {
                 <Route path="/customers" element={
                   <ProtectedRoute>
                     <CustomerList />
+                  </ProtectedRoute>
+                } />
+                <Route path="/customers/form/:id?" element={
+                  <ProtectedRoute>
+                    <CustomerForm />
                   </ProtectedRoute>
                 } />
                   <Route path="*" element={<NotFound />} />
