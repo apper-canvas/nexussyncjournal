@@ -7,6 +7,7 @@ import { getIcon } from './utils/iconUtils';
 import Home from './pages/Home';
 import { CollaborationProvider } from './context/CollaborationContext';
 import ActivityFeed from './components/ActivityFeed';
+import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
