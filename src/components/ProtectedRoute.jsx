@@ -10,14 +10,17 @@ function ProtectedRoute({ children }) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
   
-  if (!currentUser) {
-    // Explicitly return Navigate component with replace to prevent adding to history
-    // The 'replace' prop is critical here as it prevents the navigation from adding
-    // a new entry to the history stack, which helps prevent infinite redirect loops
-    return (
-      <Navigate to="/login" state={{ from: location.pathname }} replace />
-    );
-  }
+  // If user is not authenticated, redirect to login
+  // The key fix: We use 'replace' to overwrite the current history entry instead of adding a new one
+  // This helps prevent navigation loops and the "Maximum update depth exceeded" error
+  // We also ensure we're rendering this conditionally to avoid unnecessary re-renders
+  if (!currentUser) return (
+    <Navigate 
+      to="/login" 
+      state={{ from: location.pathname }} 
+      replace={true} // This is critical to prevent infinite redirects
+    />
+  );
   
   // If we get here, the user is authenticated, so render children
   return children;
