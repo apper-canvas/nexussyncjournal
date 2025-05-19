@@ -89,6 +89,7 @@ const CustomerDetail = () => {
   const TrashIcon = getIcon('Trash');
   const PlusIcon = getIcon('Plus');
   const PhoneCallIcon = getIcon('PhoneCall');
+  const SendIcon = getIcon('Send');
   const MessageCircleIcon = getIcon('MessageCircle');
   const AlertIcon = getIcon('AlertCircle');
   const CheckCircleIcon = getIcon('CheckCircle');
