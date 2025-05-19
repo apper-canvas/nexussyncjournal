@@ -15,6 +15,7 @@ const MOCK_USERS = [
     avatar: '👨‍💼', 
     color: '#4361ee' 
   },
+  // Registered users will be added here
 ];
 
 export const AuthProvider = ({ children }) => {
@@ -95,8 +96,25 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
       
-      // In a real app, this would send data to the server
+      // Create a new user with a unique ID
+      const newUser = {
+        id: `user_${Date.now()}`,
+        name,
+        email,
+        password,
+        role: 'User',
+        avatar: '👤',
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}` // Random color
+      };
+      
+      // Add the new user to our mock database
+      MOCK_USERS.push(newUser);
+      
+      console.log('User registered:', newUser);
+      console.log('Updated users:', MOCK_USERS);
+      
       toast.success('Registration successful! You can now log in.');
+      // Note: We don't log the user in automatically here, they'll need to log in on the login page
       return true;
     } catch (err) {
       setError('An error occurred during registration');
