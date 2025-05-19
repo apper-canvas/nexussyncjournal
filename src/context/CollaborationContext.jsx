@@ -113,12 +113,6 @@ export const CollaborationProvider = ({ children }) => {
             value: data.value,
             timestamp: new Date().toISOString()
           }
-          [data.fieldName]: {
-            userId: data.userId,
-            user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
-            value: data.value,
-            timestamp: new Date().toISOString()
-          }
         }
       }));
       
