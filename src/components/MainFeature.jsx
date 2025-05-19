@@ -31,6 +31,7 @@ const MOCK_TICKETS = [
   { id: 4, customer: "QuickServe Retail", title: "User permissions issue", priority: "low", status: "pending", created: "2023-04-08", assignee: "Mike Wilson" },
   { id: 5, customer: "QuickServe Retail", title: "Mobile app crashing", priority: "high", status: "open", created: "2023-04-15", assignee: "John Doe" },
 ];
+      website: 'https://acme.example.com',
 
 // Mock data for tasks
 const MOCK_TASKS = [
@@ -38,6 +39,7 @@ const MOCK_TASKS = [
   { id: 2, title: "Prepare proposal for TechFlow", relatedTo: "TechFlow Solutions", dueDate: "2023-04-18", status: "in_progress", priority: "high" },
   { id: 3, title: "Review Green Energy contract", relatedTo: "Green Energy Labs", dueDate: "2023-04-25", status: "pending", priority: "medium" },
   { id: 4, title: "Call Harmony Healthcare about renewal", relatedTo: "Harmony Healthcare", dueDate: "2023-04-19", status: "pending", priority: "medium" },
+      email: 'info@globex.example.com',
   { id: 5, title: "Resolve QuickServe critical ticket", relatedTo: "QuickServe Retail", dueDate: "2023-04-17", status: "in_progress", priority: "critical" },
 ];
 
@@ -45,6 +47,8 @@ const customerForm = {
   name: { label: "Company Name", type: "text", required: true },
   industry: { label: "Industry", type: "text", required: true },
   status: { 
+      website: 'https://initech.example.com',
+      email: 'contact@initech.example.com',
     label: "Status", 
     type: "select", 
     required: true,
@@ -53,6 +57,8 @@ const customerForm = {
       { value: "active", label: "Active" },
       { value: "inactive", label: "Inactive" }
     ]
+      website: 'https://umbrella.example.com',
+      email: 'info@umbrella.example.com',
   },
   website: { label: "Website", type: "text" },
   notes: { label: "Notes", type: "textarea" },
@@ -61,6 +67,8 @@ const customerForm = {
 const dealForm = {
   title: { label: "Deal Title", type: "text", required: true },
   customer: { label: "Customer", type: "text", required: true },
+      website: 'https://stark.example.com',
+      email: 'innovations@stark.example.com',
   value: { label: "Value ($)", type: "number", required: true },
   stage: { 
     label: "Stage", 
@@ -69,6 +77,8 @@ const dealForm = {
     options: [
       { value: "lead", label: "Lead" },
       { value: "qualified", label: "Qualified" },
+      website: 'https://wayne.example.com',
+      email: 'info@wayne.example.com',
       { value: "proposal", label: "Proposal" },
       { value: "negotiation", label: "Negotiation" },
       { value: "closed_won", label: "Closed (Won)" },
@@ -132,18 +142,26 @@ const MainFeature = ({ tabId }) => {
   const UserIcon = getIcon('User');
   const BriefcaseIcon = getIcon('Briefcase');
   const TicketIcon = getIcon('Ticket');
-  const CalendarIcon = getIcon('Calendar');
-  const AlertCircleIcon = getIcon('AlertCircle');
-  const ArrowUpIcon = getIcon('ArrowUp');
-  const ArrowDownIcon = getIcon('ArrowDown');
-  const EditIcon = getIcon('Edit');
-  const TrashIcon = getIcon('Trash');
-  const EyeIcon = getIcon('Eye');
   
-  // Initial data setup
-  useEffect(() => {
-    setShowForm(false);
-    setSelectedItem(null);
+  const generateCellClassName = (item, column) => {
+    let className = "px-4 py-3 text-sm";
+    
+    if (column === 'status') {
+      className += ` ${
+        item.status === 'Active' 
+          ? 'text-green-600 dark:text-green-400' 
+          : 'text-red-600 dark:text-red-400'
+      }`;
+    }
+    
+    if (column === 'account_value') {
+      className += " text-right";
+    }
+    
+    return className;
+  };
+  
+  const AlertCircleIcon = getIcon('AlertCircle');
     setSearchTerm('');
     
     // Set the appropriate form based on the active tab
@@ -213,7 +231,7 @@ const MainFeature = ({ tabId }) => {
     Object.entries(currentForm).forEach(([key, field]) => {
       if (field.required && !formData[key]) {
         isValid = false;
-        toast.error(`${field.label} is required`);
+                  >
       }
     });
     
@@ -243,13 +261,28 @@ const MainFeature = ({ tabId }) => {
     } else if (action === 'delete') {
       toast.success('Item deleted successfully!');
       // In a real app, we would delete the item from the database
-    } else if (action === 'view' && tabId === 'customers') {
+    
+    <AnimatePresence>
+      {selectedCustomer && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-20"
+        >
+          <CustomerDetail 
+            customer={selectedCustomer} 
+            onClose={() => setSelectedCustomer(null)}
+            onSave={handleUpdateCustomer}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
       // For customers, show the detailed view with real-time collaboration
       setSelectedCustomer({
         ...item,
         followed: Math.random() > 0.5 // Randomly set followed status for demo
-      });
-    }
   };
 
   // Handle saving customer details
