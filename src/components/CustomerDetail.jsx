@@ -287,7 +287,6 @@ const CustomerDetail = ({ customer, onClose, onSave }) => {
                       ? localEditingFields['industry'] 
                       : formData.industry
                   }
-                  onChange={(e) => handleFieldChange('industry', e.target.value)}
                   readOnly={!isEditing}
                   onFocus={() => setEditingField('industry')}
                   onBlur={handleBlur}

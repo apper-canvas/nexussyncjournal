@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useCollaboration } from '../context/CollaborationContext';
+import { useCollaboration } from '../context/CollaborationContext'; 
 import { getIcon } from '../utils/iconUtils';
 import CustomerDetail from './CustomerDetail';
 
@@ -31,15 +31,13 @@ const MOCK_TICKETS = [
   { id: 4, customer: "QuickServe Retail", title: "User permissions issue", priority: "low", status: "pending", created: "2023-04-08", assignee: "Mike Wilson" },
   { id: 5, customer: "QuickServe Retail", title: "Mobile app crashing", priority: "high", status: "open", created: "2023-04-15", assignee: "John Doe" },
 ];
-      website: 'https://acme.example.com',
 
 // Mock data for tasks
 const MOCK_TASKS = [
   { id: 1, title: "Follow up with Acme Corp", relatedTo: "Acme Corporation", dueDate: "2023-04-20", status: "pending", priority: "high" },
   { id: 2, title: "Prepare proposal for TechFlow", relatedTo: "TechFlow Solutions", dueDate: "2023-04-18", status: "in_progress", priority: "high" },
   { id: 3, title: "Review Green Energy contract", relatedTo: "Green Energy Labs", dueDate: "2023-04-25", status: "pending", priority: "medium" },
-  { id: 4, title: "Call Harmony Healthcare about renewal", relatedTo: "Harmony Healthcare", dueDate: "2023-04-19", status: "pending", priority: "medium" },
-      email: 'info@globex.example.com',
+  { id: 4, title: "Call Harmony Healthcare about renewal", relatedTo: "Harmony Healthcare", dueDate: "2023-04-19", status: "pending", priority: "medium" }, 
   { id: 5, title: "Resolve QuickServe critical ticket", relatedTo: "QuickServe Retail", dueDate: "2023-04-17", status: "in_progress", priority: "critical" },
 ];
 
@@ -47,9 +45,7 @@ const customerForm = {
   name: { label: "Company Name", type: "text", required: true },
   industry: { label: "Industry", type: "text", required: true },
   status: { 
-      website: 'https://initech.example.com',
-      email: 'contact@initech.example.com',
-    label: "Status", 
+    label: "Status",
     type: "select", 
     required: true,
     options: [
@@ -57,9 +53,7 @@ const customerForm = {
       { value: "active", label: "Active" },
       { value: "inactive", label: "Inactive" }
     ]
-      website: 'https://umbrella.example.com',
-      email: 'info@umbrella.example.com',
-  },
+  }, 
   website: { label: "Website", type: "text" },
   notes: { label: "Notes", type: "textarea" },
 };
@@ -67,9 +61,7 @@ const customerForm = {
 const dealForm = {
   title: { label: "Deal Title", type: "text", required: true },
   customer: { label: "Customer", type: "text", required: true },
-      website: 'https://stark.example.com',
-      email: 'innovations@stark.example.com',
-  value: { label: "Value ($)", type: "number", required: true },
+  value: { label: "Value ($)", type: "number", required: true }, 
   stage: { 
     label: "Stage", 
     type: "select", 
@@ -77,9 +69,7 @@ const dealForm = {
     options: [
       { value: "lead", label: "Lead" },
       { value: "qualified", label: "Qualified" },
-      website: 'https://wayne.example.com',
-      email: 'info@wayne.example.com',
-      { value: "proposal", label: "Proposal" },
+      { value: "proposal", label: "Proposal" }, 
       { value: "negotiation", label: "Negotiation" },
       { value: "closed_won", label: "Closed (Won)" },
       { value: "closed_lost", label: "Closed (Lost)" }
@@ -139,6 +129,10 @@ const MainFeature = ({ tabId }) => {
   const SearchIcon = getIcon('Search');
   const XIcon = getIcon('X');
   const CheckIcon = getIcon('CheckCircle');
+  const CalendarIcon = getIcon('Calendar');
+  const EyeIcon = getIcon('Eye');
+  const EditIcon = getIcon('Edit');
+  const TrashIcon = getIcon('Trash');
   const UserIcon = getIcon('User');
   const BriefcaseIcon = getIcon('Briefcase');
   const TicketIcon = getIcon('Ticket');
@@ -162,8 +156,9 @@ const MainFeature = ({ tabId }) => {
   };
   
   const AlertCircleIcon = getIcon('AlertCircle');
-    setSearchTerm('');
-    
+  
+  useEffect(() => {
+    setSearchTerm(''); 
     // Set the appropriate form based on the active tab
     switch(tabId) {
       case 'customers':
@@ -230,8 +225,7 @@ const MainFeature = ({ tabId }) => {
     let isValid = true;
     Object.entries(currentForm).forEach(([key, field]) => {
       if (field.required && !formData[key]) {
-        isValid = false;
-                  >
+        isValid = false; 
       }
     });
     
@@ -243,6 +237,12 @@ const MainFeature = ({ tabId }) => {
     
     // In a real app, we would add the item to the database
     // For this MVP, we're just showing the UI flow
+  };
+  
+  // Handle saving customer details
+  const handleUpdateCustomer = (updatedCustomer) => {
+    toast.success(`Customer ${updatedCustomer.name} updated successfully`);
+    setSelectedCustomer(null);
   };
   
   // Handle item action (edit/delete)
@@ -262,31 +262,16 @@ const MainFeature = ({ tabId }) => {
       toast.success('Item deleted successfully!');
       // In a real app, we would delete the item from the database
     
-    <AnimatePresence>
-      {selectedCustomer && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-20"
-        >
-          <CustomerDetail 
-            customer={selectedCustomer} 
-            onClose={() => setSelectedCustomer(null)}
-            onSave={handleUpdateCustomer}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    } else if (action === 'view') {
       // For customers, show the detailed view with real-time collaboration
       setSelectedCustomer({
         ...item,
         followed: Math.random() > 0.5 // Randomly set followed status for demo
+      });
+    }
   };
-
-  // Handle saving customer details
-  const handleSaveCustomer = (updatedCustomer) => {
+  
+  const handleSaveCustomer = (updatedCustomer) => { 
     toast.success(`Customer ${updatedCustomer.name} updated successfully`);
     setSelectedCustomer(null);
   };
