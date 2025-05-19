@@ -32,6 +32,83 @@ export const CollaborationProvider = ({ children }) => {
   const [followedRecords, setFollowedRecords] = useState([]);
   // Tracks socket connection status
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
+
+  // Define handler for user presence updates
+  const handleUserPresence = useCallback((data) => {
+    setActiveUsers(prev => ({
+      ...prev,
+      [data.recordId]: {
+        ...(prev[data.recordId] || {}),
+        [data.userId]: {
+          user: MOCK_USERS[data.userId] || { 
+            id: data.userId, 
+            name: 'Unknown User', 
+            avatar: '👤',
+            color: '#64748b'
+          },
+          action: data.action,
+          lastActive: new Date().toISOString()
+        }
+      }
+    }));
+  }, []);
+  
+  // Define handler for edit updates
+  const handleEditUpdate = useCallback((data) => {
+    setCurrentEdits(prev => ({
+      ...prev, 
+      [data.recordId]: { 
+        ...(prev[data.recordId] || {}), 
+        [data.fieldName]: {
+          userId: data.userId,
+          user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
+          value: data.value,
+          timestamp: new Date().toISOString()
+        }
+      }
+    }));
+    
+    // Add notification if this is a record the user follows
+    if (followedRecords.includes(data.recordId) && data.userId !== currentUser.id) {
+      const notification = {
+        id: nanoid(),
+        userId: data.userId,
+        user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
+        recordId: data.recordId,
+        action: 'edited',
+        fieldName: data.fieldName,
+        timestamp: new Date().toISOString()
+      };
+      
+      setNotifications(prev => [notification, ...prev].slice(0, 20));
+      toast.info(`${notification.user.name} edited ${data.fieldName} of record #${data.recordId}`);
+    }
+  }, [followedRecords, currentUser.id]);
+
+  // Function to simulate remote edits (for demo purposes)
+  const simulateRemoteEdit = useCallback((userId, recordId, fieldName, value) => {
+    const editData = {
+      recordId,
+      userId,
+      fieldName,
+      value
+    };
+    
+    handleEditUpdate(editData);
+    
+    // Also update the activeUsers to show they're editing
+    setActiveUsers(prev => ({
+      ...prev,
+      [recordId]: {
+        ...(prev[recordId] || {}),
+        [userId]: {
+          user: MOCK_USERS[userId],
+          action: 'editing',
+          lastActive: new Date().toISOString()
+        }
+      }
+    }));
+  }, [handleEditUpdate]);
   
   // Initialize socket connection
   useEffect(() => {
@@ -75,62 +152,11 @@ export const CollaborationProvider = ({ children }) => {
       }, 5000);
       
     }, 2000);
-  }, [currentUser.id]);
+  }, [currentUser.id, handleUserPresence]);
   
   // Helper to register socket event handlers and mock their behavior
   useEffect(() => {
     if (!socket) return;
-    
-    // Define mock handler for user presence updates
-    const handleUserPresence = (data) => {
-      setActiveUsers(prev => ({
-        ...prev,
-        [data.recordId]: {
-          ...(prev[data.recordId] || {}),
-          [data.userId]: {
-            user: MOCK_USERS[data.userId] || { 
-              id: data.userId, 
-              name: 'Unknown User', 
-              avatar: '👤',
-              color: '#64748b'
-            },
-            action: data.action,
-            lastActive: new Date().toISOString()
-          }
-        }
-      }));
-    };
-    
-  // Define handler for edit updates
-  const handleEditUpdate = (data) => {
-      setCurrentEdits(prev => ({
-        ...prev, 
-        [data.recordId]: { 
-          ...(prev[data.recordId] || {}), 
-          [data.fieldName]: {
-            userId: data.userId,
-            user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
-            value: data.value,
-            timestamp: new Date().toISOString()
-          }
-        }
-      }));
-      // Add notification if this is a record the user follows
-      if (followedRecords.includes(data.recordId) && data.userId !== currentUser.id) {
-        const notification = {
-          id: nanoid(),
-          userId: data.userId,
-          user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
-          recordId: data.recordId,
-          action: 'edited',
-          fieldName: data.fieldName,
-          timestamp: new Date().toISOString()
-        };
-        
-        setNotifications(prev => [notification, ...prev].slice(0, 20));
-        toast.info(`${notification.user.name} edited ${data.fieldName} of record #${data.recordId}`);
-      }
-    };
     
     // Mock socket event registrations
     // In a real app, these would be actual socket.on() handlers
@@ -141,32 +167,7 @@ export const CollaborationProvider = ({ children }) => {
       socket.off('user_presence', handleUserPresence);
       socket.off('edit_update', handleEditUpdate);
     };
-  }, [socket, currentUser.id, followedRecords]);
-
-  // Function to simulate remote edits (for demo purposes)
-  const simulateRemoteEdit = useCallback((userId, recordId, fieldName, value) => {
-    const editData = {
-      recordId,
-      userId,
-      fieldName,
-      value
-    };
-    
-    handleEditUpdate(editData);
-    
-    // Also update the activeUsers to show they're editing
-    setActiveUsers(prev => ({
-      ...prev,
-      [recordId]: {
-        ...(prev[recordId] || {}),
-        [userId]: {
-          user: MOCK_USERS[userId],
-          action: 'editing',
-          lastActive: new Date().toISOString()
-        }
-      }
-    }));
-  }, []);
+  }, [socket, handleUserPresence, handleEditUpdate]);
   
   // Function to view a record
   const viewRecord = useCallback((recordId, recordType) => {
@@ -184,7 +185,7 @@ export const CollaborationProvider = ({ children }) => {
         });
       }, 2000);
     }
-  }, [socket]);
+  }, [socket, handleUserPresence]);
   
   // Function to update a field in real-time
   const updateField = useCallback((recordId, fieldName, value, isComplete = false) => {
@@ -217,7 +218,7 @@ export const CollaborationProvider = ({ children }) => {
         // For demo purposes, we're handling it locally
       }
     }
-  }, [socket, currentUser.id]);
+  }, [socket, currentUser, handleEditUpdate]);
   
   return (
     <CollaborationContext.Provider value={{ 
