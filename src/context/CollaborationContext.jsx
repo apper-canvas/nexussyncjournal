@@ -1,0 +1,161 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { nanoid } from 'nanoid';
+import { toast } from 'react-toastify';
+import { io } from 'socket.io-client';
+
+// Create context
+const CollaborationContext = createContext();
+
+// Mock user data - in a real app this would come from authentication
+const MOCK_USERS = {
+  'user1': { id: 'user1', name: 'John Smith', role: 'Admin', avatar: '👨‍💼', color: '#4361ee' },
+  'user2': { id: 'user2', name: 'Emily Johnson', role: 'Sales', avatar: '👩‍💼', color: '#f72585' },
+  'user3': { id: 'user3', name: 'Michael Wong', role: 'Support', avatar: '👨‍💻', color: '#7209b7' },
+};
+
+export const CollaborationProvider = ({ children }) => {
+  // Generate a unique session ID for this user
+  const [sessionId] = useState(() => nanoid(8));
+  // Current user - in a real app this would come from auth
+  const [currentUser] = useState(MOCK_USERS.user1);
+  // Socket instance
+  const [socket, setSocket] = useState(null);
+  // Tracks which record the user is currently viewing
+  const [activeRecord, setActiveRecord] = useState(null);
+  // Tracks users viewing the same records
+  const [activeUsers, setActiveUsers] = useState({});
+  // Tracks user edits in real-time
+  const [currentEdits, setCurrentEdits] = useState({});
+  // Tracks recent activity notifications
+  const [notifications, setNotifications] = useState([]);
+  // Tracks records the user is following
+  const [followedRecords, setFollowedRecords] = useState([]);
+  
+  // Initialize socket connection
+  useEffect(() => {
+    // In a real application, this would connect to your actual server
+    const socketInstance = io('https://nexussync-collaboration.example.com', {
+      // For development with no server, we disable actual connection attempts
+      autoConnect: false,
+      transports: ['websocket']
+    });
+    
+    setSocket(socketInstance);
+    
+    // Mock the socket connection behavior for demo purposes
+    setTimeout(() => {
+      toast.info(`Connected to real-time collaboration server`);
+    }, 1000);
+    
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, []);
+  
+  // Helper to register socket event handlers and mock their behavior
+  useEffect(() => {
+    if (!socket) return;
+    
+    // Define mock handler for user presence updates
+    const handleUserPresence = (data) => {
+      setActiveUsers(prev => ({
+        ...prev,
+        [data.recordId]: {
+          ...(prev[data.recordId] || {}),
+          [data.userId]: {
+            user: MOCK_USERS[data.userId] || { 
+              id: data.userId, 
+              name: 'Unknown User', 
+              avatar: '👤',
+              color: '#64748b'
+            },
+            action: data.action,
+            lastActive: new Date().toISOString()
+          }
+        }
+      }));
+    };
+    
+    // Define mock handler for edit updates
+    const handleEditUpdate = (data) => {
+      setCurrentEdits(prev => ({
+        ...prev,
+        [data.recordId]: {
+          ...(prev[data.recordId] || {}),
+          [data.fieldName]: {
+            userId: data.userId,
+            user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
+            value: data.value,
+            timestamp: new Date().toISOString()
+          }
+        }
+      }));
+      
+      // Add notification if this is a record the user follows
+      if (followedRecords.includes(data.recordId) && data.userId !== currentUser.id) {
+        const notification = {
+          id: nanoid(),
+          userId: data.userId,
+          user: MOCK_USERS[data.userId] || { name: 'Unknown User' },
+          recordId: data.recordId,
+          action: 'edited',
+          fieldName: data.fieldName,
+          timestamp: new Date().toISOString()
+        };
+        
+        setNotifications(prev => [notification, ...prev].slice(0, 20));
+        toast.info(`${notification.user.name} edited ${data.fieldName} of record #${data.recordId}`);
+      }
+    };
+    
+    // Mock socket event registrations
+    // In a real app, these would be actual socket.on() handlers
+    socket.on('user_presence', handleUserPresence);
+    socket.on('edit_update', handleEditUpdate);
+    
+    return () => {
+      socket.off('user_presence', handleUserPresence);
+      socket.off('edit_update', handleEditUpdate);
+    };
+  }, [socket, currentUser.id, followedRecords]);
+  
+  // Function to view a record
+  const viewRecord = useCallback((recordId, recordType) => {
+    setActiveRecord({ id: recordId, type: recordType });
+    
+    // Simulate sending a presence event to the server
+    if (socket) {
+      // In a real app, this would be a socket.emit() call
+      // Mock receiving presence data from other users
+      setTimeout(() => {
+        handleUserPresence({
+          recordId,
+          userId: 'user2',
+          action: 'viewing'
+        });
+      }, 2000);
+    }
+  }, [socket]);
+  
+  // Function to update a field in real-time
+  const updateField = useCallback((recordId, fieldName, value) => {
+    if (socket) {
+      // In a real app, this would be a socket.emit() call
+      // For our demo, we'll simulate the response
+      handleEditUpdate({
+        recordId,
+        userId: currentUser.id,
+        fieldName,
+        value
+      });
+    }
+  }, [socket, currentUser.id]);
+  
+  return (
+    <CollaborationContext.Provider value={{ currentUser, sessionId, activeRecord, activeUsers, currentEdits, notifications, followedRecords, setFollowedRecords, viewRecord, updateField }}>
+      {children}
+    </CollaborationContext.Provider>
+  );
+};
+
+export const useCollaboration = () => useContext(CollaborationContext);

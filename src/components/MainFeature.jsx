@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { useCollaboration } from '../context/CollaborationContext';
 import { getIcon } from '../utils/iconUtils';
+import CustomerDetail from './CustomerDetail';
 
 // Mock data for customers
 const MOCK_CUSTOMERS = [
@@ -117,8 +119,10 @@ const MainFeature = ({ tabId }) => {
   const [showForm, setShowForm] = useState(false);
   const [currentForm, setCurrentForm] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [formData, setFormData] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
+  const { updateField } = useCollaboration();
   
   // Get required icons
   const PlusIcon = getIcon('Plus');
@@ -134,6 +138,7 @@ const MainFeature = ({ tabId }) => {
   const ArrowDownIcon = getIcon('ArrowDown');
   const EditIcon = getIcon('Edit');
   const TrashIcon = getIcon('Trash');
+  const EyeIcon = getIcon('Eye');
   
   // Initial data setup
   useEffect(() => {
@@ -228,11 +233,29 @@ const MainFeature = ({ tabId }) => {
       setSelectedItem(item);
       setFormData(item);
       setShowForm(true);
+      
+      // For real-time collaboration, notify others that we're editing this item
+      if (tabId === 'customers') {
+        updateField(item.id, 'status', item.status);
+      }
+      
       toast.info('Editing item...');
     } else if (action === 'delete') {
       toast.success('Item deleted successfully!');
       // In a real app, we would delete the item from the database
+    } else if (action === 'view' && tabId === 'customers') {
+      // For customers, show the detailed view with real-time collaboration
+      setSelectedCustomer({
+        ...item,
+        followed: Math.random() > 0.5 // Randomly set followed status for demo
+      });
     }
+  };
+
+  // Handle saving customer details
+  const handleSaveCustomer = (updatedCustomer) => {
+    toast.success(`Customer ${updatedCustomer.name} updated successfully`);
+    setSelectedCustomer(null);
   };
   
   // Get appropriate label for the add button
@@ -441,6 +464,15 @@ const MainFeature = ({ tabId }) => {
                 )}
                 
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  {tabId === 'customers' && (
+                    <button
+                      onClick={() => handleItemAction('view', item)}
+                      className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                    >
+                      <EyeIcon className="h-4 w-4" />
+                      <span className="sr-only">View</span>
+                    </button>
+                  )}
                   <button 
                     onClick={() => handleItemAction('edit', item)}
                     className="text-primary hover:text-primary-dark dark:hover:text-primary-light"
@@ -450,7 +482,7 @@ const MainFeature = ({ tabId }) => {
                   </button>
                   <button 
                     onClick={() => handleItemAction('delete', item)}
-                    className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
+                    className="text-red-600 hover:text-red-900 dark:hover:text-red-400 ml-2"
                   >
                     <TrashIcon className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
@@ -511,6 +543,15 @@ const MainFeature = ({ tabId }) => {
       </div>
       
       <AnimatePresence mode="wait">
+        {selectedCustomer && (
+          <motion.div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <CustomerDetail 
+              customer={selectedCustomer} 
+              onClose={() => setSelectedCustomer(null)} 
+              onSave={handleSaveCustomer} 
+            />
+          </motion.div>
+        )}
         {showForm ? (
           <motion.div
             key="form"
