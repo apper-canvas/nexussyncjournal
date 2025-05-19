@@ -38,8 +38,6 @@ function App() {
   const MoonIcon = getIcon('Moon');
   const SunIcon = getIcon('Sun');
 
-  const LogOutIcon = getIcon('LogOut');
-
   return (
     <AuthProvider>
       <CollaborationProvider>
@@ -121,7 +119,8 @@ function App() {
 
 function AuthNavigation() {
   const { currentUser, logout } = useAuth();
-  
+  const LogOutIcon = getIcon('LogOut');
+
   return currentUser ? (
     <button onClick={logout} className="flex items-center p-2 rounded-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors">
       <LogOutIcon className="w-5 h-5" />
