@@ -1093,6 +1093,7 @@ const CustomerDetail = () => {
       </motion.div>
     </div>
 
-}
+};
+
 
 export default CustomerDetail;
