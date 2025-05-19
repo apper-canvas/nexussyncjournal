@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { getIcon } from '../utils/iconUtils';
@@ -19,7 +20,9 @@ const Home = () => {
   tabs.forEach(tab => {
     tabIcons[tab.id] = getIcon(tab.icon);
   });
-  
+
+  const navigate = useNavigate();
+
   // Dashboard stats
   const stats = [
     { title: 'Total Customers', value: 243, change: '+12%', icon: 'users', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' },
@@ -29,6 +32,15 @@ const Home = () => {
   ];
   
   const handleQuickAction = (action) => {
+    switch(action) {
+      case 'add_customer':
+        navigate('/customers');
+        toast.info('Navigating to customer management');
+        return;
+      default:
+        // Fallback to toast
+        break;
+    }
     toast.success(`Action initiated: ${action}`);
   };
   
@@ -108,7 +120,13 @@ const Home = () => {
                           ${activeTab === tab.id 
                             ? 'border-primary text-primary dark:text-primary-light font-medium' 
                             : 'border-transparent hover:text-primary hover:border-surface-300 dark:hover:border-surface-600'}`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === 'customers') {
+                    navigate('/customers');
+                  } else {
+                    setActiveTab(tab.id);
+                  }
+                }}
               >
                 <TabIcon className="h-4 w-4 mr-2" />
                 {tab.label}

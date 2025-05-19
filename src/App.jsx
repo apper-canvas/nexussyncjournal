@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import CustomerList from './components/CustomerList';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -38,6 +39,10 @@ function App() {
   const MoonIcon = getIcon('Moon');
   const SunIcon = getIcon('Sun');
 
+  // Navigation icons
+  const HomeIcon = getIcon('Home');
+  const UsersIcon = getIcon('Users');
+
   return (
     <AuthProvider>
       <CollaborationProvider>
@@ -50,15 +55,29 @@ function App() {
                 </div>
                 <h1 className="text-xl font-bold">NexusSync CRM</h1>
               </div>
+
+              <div className="hidden md:flex items-center space-x-1">
+                <Routes>
+                  <Route path="*" element={
+                    <div className="flex items-center space-x-1">
+                      <NavLink to="/" icon={<HomeIcon className="w-4 h-4" />} label="Dashboard" />
+                      <NavLink to="/customers" icon={<UsersIcon className="w-4 h-4" />} label="Customers" />
+                    </div>
+                  } />
+                </Routes>
+              </div>
               
               <div className="flex items-center space-x-2">
                 <Routes>
                   <Route path="/" element={<ActivityFeed />} />
+                  <Route path="/customers" element={<ActivityFeed />} />
                 </Routes>
                 
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 rounded-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
+                  className="p-2 rounded-full bg-surface-100 dark:bg-surface-700 
+                           hover:bg-surface-200 dark:hover:bg-surface-600 
+                           transition-colors"
                   aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                   {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
@@ -87,6 +106,11 @@ function App() {
                       <Home />
                     </ProtectedRoute>
                   } />
+                <Route path="/customers" element={
+                  <ProtectedRoute>
+                    <CustomerList />
+                  </ProtectedRoute>
+                } />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </motion.div>
@@ -114,6 +138,18 @@ function App() {
         </div>
       </CollaborationProvider>
     </AuthProvider>
+  );
+}
+
+function NavLink({ to, icon, label }) {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  
+  return (
+    <a href={to} className={`px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'hover:bg-surface-100 dark:hover:bg-surface-700'}`}>
+      {icon}
+      <span>{label}</span>
+    </a>
   );
 }
 
