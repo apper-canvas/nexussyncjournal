@@ -12,11 +12,14 @@ function ProtectedRoute({ children }) {
   
   if (!currentUser) {
     // Explicitly return Navigate component with replace to prevent adding to history
-    // This helps prevent the infinite render loop
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    // The 'replace' prop is critical here as it prevents the navigation from adding
+    // a new entry to the history stack, which helps prevent infinite redirect loops
+    return (
+      <Navigate to="/login" state={{ from: location.pathname }} replace />
+    );
   }
   
-  // Only render children when user is authenticated
+  // If we get here, the user is authenticated, so render children
   return children;
 }
 
