@@ -33,7 +33,7 @@ export const CollaborationProvider = ({ children }) => {
   // Tracks socket connection status
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
-  // Define handler for user presence updates
+  // Handler for user presence updates
   const handleUserPresence = useCallback((data) => {
     setActiveUsers(prev => ({
       ...prev,
