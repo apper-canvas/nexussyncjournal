@@ -117,6 +117,11 @@ function App() {
                     <CustomerForm />
                   </ProtectedRoute>
                 } />
+                <Route path="/customers/detail/:id" element={
+                  <ProtectedRoute>
+                    <CustomerDetail />
+                  </ProtectedRoute>
+                } />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </motion.div>

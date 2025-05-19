@@ -232,10 +232,10 @@ const CustomerList = () => {
   };
 
   // Handle view customer details
-  const handleViewCustomer = (customer) => {
-    // In a real app, this would navigate to the customer detail page
-    // For now, we'll show a toast notification
-    toast.info(`Viewing customer details for "${customer.name}"`);
+  const handleViewCustomer = (customerId) => {
+    // Navigate to the customer detail page
+    navigate(`/customers/detail/${customerId}`);
+    toast.info('Loading customer details');
   };
 
   return (
@@ -559,8 +559,8 @@ const CustomerList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <button
-                          onClick={() => handleViewCustomer(customer)}
-                          className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                          onClick={() => handleViewCustomer(customer.id)}
+                          className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           title="View details"
                         >
                           <EyeIcon className="h-4 w-4" />
